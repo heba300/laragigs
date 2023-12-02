@@ -44,8 +44,34 @@
                 <p>
                     Don't have an account?
                     <a href="/register" class="text-laravel">Register</a>
+
+
+
+                <div class="d-flex align-items-center">
+                    <div class="form-check form-check-info text-left mb-0">
+                        <input class="form-check-input" type="checkbox" value="remember" name="remember_me"
+                            id="flexCheckDefault">
+                        <label class="font-weight-normal text-dark mb-0" for="flexCheckDefault">
+                            Remember
+                        </label>
+                    </div>
+                    <a href="{{ route('forgetPassword') }}"class="text-laravel">Forgot
+                        password</a>
+                </div>
+                <br>
+                <div class="mb-6">
+                    <a href="{{ route('google-auth') }}"
+                        class="bg-laravel text-white rounded py-2 px-4 hover:bg-black cursor-pointer flex items-center">
+                        <div class="mr-2">
+                            <img src="{{ asset('images/google.png') }}" alt="google_image" width="20px" height="20px"
+                                class="rounded-xl">
+                        </div>
+                        Sign In With Google
+                    </a>
+                </div>
                 </p>
             </div>
+
         </form>
 
     </x-card>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Listing;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\listing\ListingRequest;
 use App\Http\Requests\listing\UpdateListingRequest;
 use App\Repositories\Listing\listingRepository;
@@ -20,10 +19,11 @@ class ListingController extends Controller
     //show all listing
     public function index()
     {
+        // Listing::latest()->filter(
+        //     request(['tag', 'search'])
+        // )->paginate(6)
         return view('listings.index', [
-            'listings' => Listing::latest()->filter(
-                request(['tag', 'search'])
-            )->paginate(6)
+            'listings' => $this->listingRepository->descFilterPaginate(['tag', 'search'], 2)
         ]);
     }
     //show single listing
@@ -42,10 +42,10 @@ class ListingController extends Controller
     }
 
 
-    public function store(ListingRequest $request): RedirectResponse
+    public function store(ListingRequest $request)
     {
 
-        $formFields = $this->listingRepository->create($request);
+        $this->listingRepository->createListing($request);
         return redirect('/')->with('message', 'Listing Created Successful');
     }
 
@@ -54,9 +54,9 @@ class ListingController extends Controller
         return view('listings.edit', ['listing' => $listing]);
     }
 
-    public function update(UpdateListingRequest $request, Listing $listing): RedirectResponse
+    public function update(UpdateListingRequest $request, Listing $listing)
     {
-        $formFields = $this->listingRepository->updateDate($request, $listing);
+        $this->listingRepository->updateListing($request, $listing);
         return redirect('/')->with('message', 'Listing Update Successful');
     }
 
@@ -66,13 +66,14 @@ class ListingController extends Controller
         //     abort(403, 'unathorthez message');
         // }
 
-        $this->listingRepository->delete($listing);
+        $this->listingRepository->destroy($listing);
         return redirect('/')->with('message', 'Listing Delete Successful');
     }
 
 
     public function manage()
     {
+
         return view('listings.manage', ['listings' => auth()->user()->listings()->get()]);
     }
 }
