@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 
 use App\Models\User;
+use App\Repositories\Auth\GoogleRepositoryInterface;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -12,6 +13,11 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
 {
+    private $googleRepository;
+    public function __construct(GoogleRepositoryInterface $googleRepository)
+    {
+        return $this->googleRepository = $googleRepository;
+    }
     public function redirect()
     {
         //composer require laravel/socialite terminal
@@ -21,21 +27,8 @@ class GoogleAuthController extends Controller
     public function callbackGoogle()
     {
         try {
-            $google_user = Socialite::driver('google')->user();
-            $user = User::where('email', $google_user->getEmail())->first();
-            if (!$user) {
-                $new_user = User::create([
-                    'name' => $google_user->getName(),
-                    'email' => $google_user->getEmail(),
-                    'google_id' => $google_user->getId()
-                ]);
-
-                Auth::login($new_user);
-                return redirect()->intended('/');
-            } else {
-                Auth::login($user);
-                return redirect()->intended('/');
-            }
+            $this->googleRepository->logInUser();
+            return redirect()->intended('/');
         } catch (Exception $d) {
             dd('something wrong', $d->getMessage());
         }

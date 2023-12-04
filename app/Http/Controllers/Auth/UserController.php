@@ -2,36 +2,34 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\AuthenticateRequest;
+use App\Http\Requests\Auth\AuthRequest;
+use App\Repositories\Auth\UserRepositoryInterface;
 
 class UserController extends Controller
 {
+    private $userRepository;
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        return $this->userRepository = $userRepository;
+    }
+
     public function create()
     {
         return view('users.register');
     }
 
-    public function store(Request $request)
+    public function store(AuthRequest $request)
     {
-        $formFields = $request->validate([
-            'name' => ['required', 'min:3'],
-            'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'password' => 'required|confirmed|min:6'
-        ]);
-        $formFields['password'] = bcrypt($formFields['password']);
-        $user = User::create($formFields);
-        auth()->login($user);
+        $this->userRepository->createAuth($request);
         return redirect('/')->with('message', 'User Create And Login');
     }
 
     public function logout(Request $request)
     {
-        auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $this->userRepository->logoutAuth($request);
         return redirect('/')->with('message', 'you Have Been Logout!');
     }
 
@@ -40,13 +38,10 @@ class UserController extends Controller
         return view('users.login');
     }
 
-    public function authenticate(Request $request)
+    public function authenticate(AuthenticateRequest $request)
     {
-        $formFields = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => 'required'
-        ]);
-        if (auth()->attempt($formFields)) {
+
+        if ($this->userRepository->authenticateAuth($request)) {
             $request->session()->regenerate();
             return redirect('/')->with('message', 'you are now login');
         }

@@ -14,15 +14,18 @@ use App\Repositories\Listing\listingRepository;
 class ElqouentListingRepository extends BaseElqouentRepository implements listingRepository
 {
 
-    
+
     public function createListing(ListingRequest $request)
     {
         $formFields = $request->except('_token');
 
 
-        if ($request->hasFile('logo')) {
-            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        if ($this->requestFileExists('logo')) {
+            $formFields['logo'] = $this->saveImage('logo', 'logos');
         }
+
+
+
         $formFields['user_id'] = auth()->id();
         return $this->create($formFields);
     }

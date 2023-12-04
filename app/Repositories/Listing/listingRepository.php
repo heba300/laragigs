@@ -10,7 +10,6 @@ use App\Repositories\BaseRepository;
 
 interface listingRepository extends BaseRepository
 {
-    // public function saveImage($file, $path, $request);
     public function createListing(ListingRequest $request);
 
     public function updateListing(UpdateListingRequest $request, Listing $listing);

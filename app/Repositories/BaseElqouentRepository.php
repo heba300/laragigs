@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\Listing;
+
 use App\Repositories\BaseRepository;
 use Illuminate\Support\Facades\Storage;
 
@@ -36,9 +36,16 @@ class BaseElqouentRepository implements BaseRepository
     {
         return $model->destroy($model->id);
     }
+    public function requestFileExists($file): bool
+    {
+        return request()->hasFile($file);
+    }
+
     public function saveImage($file, $path)
     {
+        return request()->file($file)->store($path, 'public');
     }
+
     public function deleteImage($image)
     {
         return Storage::disk('public')->delete($image ?? '');
